@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
         print("[", status, "]", seat_num, "번 좌석", msg);
         
-        if(msg == "예약은 차량출발 1시간 전까지 가능합니다.") break;
+        if msg == "예약은 차량출발 1시간 전까지 가능합니다.": break;
 
         if status == "success":
             print(str(seat_num), "번 좌석 예약 완료");
