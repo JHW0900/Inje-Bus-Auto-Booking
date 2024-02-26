@@ -1,12 +1,17 @@
 import requests;
 
-import info;
+import busApi;
 
 url = "https://bus.inje.ac.kr//login_proc.php";
 
 def fn_login():
     username = input("아이디를 입력: ");
     password = input("비밀번호를 입력: ");
+    # username = input("아이디를 입력: ");
+    # password = getpass.getpass("비밀번호를 입력: ");
+
+    username = "20192662";
+    password = "howon0915@";
 
     login_form_data = {
         'id': username,
@@ -15,5 +20,5 @@ def fn_login():
     };
 
     with requests.Session() as session:
-        post = session.post(url, data=login_form_data);
-        info.cookies = session.cookies.get_dict();
+        res = session.post(url, data=login_form_data);
+        busApi.session = session;
