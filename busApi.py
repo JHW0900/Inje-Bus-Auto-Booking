@@ -29,6 +29,7 @@ def getNextDate(cur_date):
     }
     return date_set;
 
+# 요청된 날짜에 해당하는 예약 가능 지역 조회
 def getLine(date_code):
     url = "https://bus.inje.ac.kr/reserve/day_select_proc.php"
     data = { "dateCode": date_code };
@@ -48,7 +49,7 @@ def getLine(date_code):
         
         return line_dict;
 
-# 해당 날짜의 예약 가능한 시간을 조회
+# 해당 날짜에 예약 가능한 시간을 조회
 def getTime(line_code, date_code):
     url = "https://bus.inje.ac.kr/reserve/time_select_proc.php";
     data = {
@@ -57,7 +58,22 @@ def getTime(line_code, date_code):
     };
 
     res = session.post(url, data);
-    print(res.json());
+
+    if res.status_code == 200:
+        time_list = [];
+        time_str = res.json()["list"];
+        parse_str = re.sub(r"[^0-9가-힣]", " ", time_str).replace("노선선택", "").strip(" ");
+        parse_list = re.sub(" +", " ", parse_str).split(" ");
+
+        for i in range(0, len(parse_list) - 5, 6):
+            time_dict = {};
+            time_dict["busCode"] = parse_list[i + 1];
+            time_dict["busType"] = parse_list[i + 2];
+            time_dict["busTime"] = parse_list[i + 3] + ":" + parse_list[i + 4];
+        
+            time_list.append(time_dict);
+        
+        return time_list;
 
 # 버스 예약
 def bookBus():
