@@ -1,7 +1,7 @@
 import getpass;
 import requests;
 
-import info;
+import busApi;
 
 url = "https://bus.inje.ac.kr//login_proc.php";
 
@@ -17,4 +17,4 @@ def fn_login():
 
     with requests.Session() as session:
         res = session.post(url, data=login_form_data);
-        info.cookies = session.cookies.get_dict();
+        busApi.session = session;
