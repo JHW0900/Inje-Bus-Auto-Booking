@@ -2,7 +2,7 @@ import requests
 import time
 import json
 
-from busApi import *;
+from busAPI import *;
 from auth import login;
 
 if __name__ == "__main__":
