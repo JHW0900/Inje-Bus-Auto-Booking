@@ -1,4 +1,5 @@
 import requests, re;
+from bs4 import BeautifulSoup;
 from datetime import date, timedelta;
 
 session = None;
@@ -38,15 +39,17 @@ def getLine(date_code):
 
     if res.status_code == 200:
         line_dict = {};
-        line_str = res.json()["lineList"];
-        parse_str = re.sub(r"[^0-9가-힣]", " ", line_str).replace("노선선택", "").strip(" ");
+        line_str = res.json()["lineList"].replace("양산 - 물금", "양산-물금").replace("양산 - 북정", "양산-북정");
+        line_str = line_str.replace("영도/부산역", "부산역");
+        parse_str = re.sub(r"[^0-9가-힣\-]", " ", line_str).replace("노선선택", "").strip(" ");
         parse_list = re.sub(" +", " ", parse_str).split(" ");
 
+        line_dict["status"] = res.json()["status"];
         for i in range(0, len(parse_list) - 1, 2):
             key = parse_list[i];
             val = parse_list[i + 1];
             line_dict[key] = val;
-        
+
         return line_dict;
 
 # 해당 날짜에 예약 가능한 시간을 조회
@@ -61,8 +64,9 @@ def getTime(line_code, date_code):
 
     if res.status_code == 200:
         time_list = [];
-        time_str = res.json()["list"];
-        parse_str = re.sub(r"[^0-9가-힣]", " ", time_str).replace("노선선택", "").strip(" ");
+        time_str = res.json()["list"].replace("양산 - 물금", "양산-물금").replace("양산 - 북정", "양산-북정");
+        time_str = time_str.replace("영도/부산역", "부산역");
+        parse_str = re.sub(r"[^0-9가-힣\-]", " ", time_str).replace("노선선택", "").strip(" ");
         parse_list = re.sub(" +", " ", parse_str).split(" ");
 
         for i in range(0, len(parse_list) - 5, 6):
@@ -75,13 +79,34 @@ def getTime(line_code, date_code):
         
         return time_list;
 
+# 버스 busCode 조회
+def getBusCode(line_code, time_code):
+    url = "https://bus.inje.ac.kr/reserve/select_seat.php";
+    params = {
+        "lineCode": line_code,
+        "timeCode": time_code
+    };
+
+    res = session.get(url, params=params);
+    soup = BeautifulSoup(res.text, "html.parser");
+    seats = soup.select(".ui-grid-d > div > a");
+    for seat in seats:
+        if seat.get_text() == "X":
+            continue;
+        
+        func = str(seat["onclick"]);
+        bus_code = re.sub(" +", " ", re.sub(r"[^0-9]", " ", func).strip(" ")).split(" ")[0];
+        break;
+    
+    return bus_code;
+
 # 버스 예약
-def bookBus():
+def bookBus(bus_code, seatNum):
     url = "https://bus.inje.ac.kr/reserve/insert_reserve_proc.php";
     data = {
-        "busCode": "110665",
-        "seatNum": "1",
-        "oriCode": "110665"
+        "busCode": bus_code,
+        "seatNum": seatNum,
+        "oriCode": bus_code
     }
 
     is_done = False;
@@ -98,7 +123,58 @@ def bookBus():
         if status == "success":
             print(str(seat_num), "번 좌석 예약 완료");
             is_done = True;
-        else:
+        
+        elif msg == "이미 선택된 좌석입니다.":
             seat_num += 1;
             if seat_num > 44: seat_num = 1;
             data["seatNum"] = seat_num;
+        else: break;
+    return is_done;
+
+# 예약된 버스 조회
+def getBookedBus():
+    url = "https://bus.inje.ac.kr/index.php";
+    
+    res = session.get(url);
+    soup = BeautifulSoup(res.text, "html.parser");
+
+    root_selector = "#extends > div > ul > li";
+    info_selector = root_selector + " > a";
+
+    info_list = soup.select(info_selector);
+
+    bus_list = [];
+    for i in range(0, len(info_list), 2):
+        bus_info = {};
+
+        el_info = info_list[i];
+        el_code = info_list[i + 1];
+
+        p_info_list = el_info.find_all("p");
+        bus_info["info_date"] = el_info.h2.get_text().replace("\xa0", " ");
+        bus_info["info_line"] = p_info_list[0].get_text();
+        bus_info["info_bus"] = p_info_list[1].get_text();
+        bus_info["info_cancel"] = p_info_list[2].get_text();
+
+        cancel_info = re.sub(" +", " ", re.sub(r"[^0-9NY]", " ", el_code["onclick"]).strip(" ")).split(" ");
+        bus_info["cancel_code"] = cancel_info[0];
+        bus_info["cancel_type"] = cancel_info[1];
+
+        bus_list.append(bus_info);
+    return bus_list;
+
+# 예약된 버스 일괄 취소
+def cancelAllBooking():
+    bus_list = getBookedBus();
+    url = "https://bus.inje.ac.kr/reserve/cancel_proc.php";
+
+    for el in bus_list:
+        data = {
+            "seq": el["cancel_code"]
+        };
+
+        if el["cancel_type"] == "N":
+            res = session.post(url, data);
+            print(res.text);
+        else:
+            print(res.text, "해당내역은 증차된 차량이며, 예약취소시 패널티가 부여됩니다.\n취소를 원하시면, 본 사이트에서 계속해주세요.")
