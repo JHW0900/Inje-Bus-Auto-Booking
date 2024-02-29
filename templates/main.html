@@ -13,20 +13,22 @@
     <body>
         <header>
             <nav>
-                <div class="logo">
-                    <img
-                        src="static/img/inje.jpg"
-                        alt="Logo"
-                        style="height: 50px"
-                    />
-                    <p>|&nbsp;</p>
-                    <p style="color: #1769ff">원클릭!&nbsp;</p>
-                    <p>버스예약</p>
-                    <ul class="nav-links">
-                        <li><a href="#">예약하기</a></li>
-                        <li><a href="#">마이페이지</a></li>
-                    </ul>
-                </div>
+                <a href="{{url_for('main')}}" style="text-decoration: none">
+                    <div class="logo">
+                        <img
+                            src="static/img/inje.jpg"
+                            alt="Logo"
+                            style="height: 50px"
+                        />
+                        <p>|&nbsp;</p>
+                        <p style="color: #1769ff">원클릭!&nbsp;</p>
+                        <p>버스예약</p>
+                    </div>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="#">예약하기</a></li>
+                    <li><a href="#">마이페이지</a></li>
+                </ul>
                 <ul class="login-link">
                     {% if g.user %}
                     <li><a href="/logout">로그아웃</a></li>
