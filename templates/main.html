@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>원클릭! 인제 버스예약</title>
+        <link
+            rel="shortcut icon"
+            href="{{ url_for('static', filename='favicon.ico') }}"
+        />
+        <link rel="stylesheet" href="static/main.css" />
+    </head>
+    <body>
+        <header>
+            <nav>
+                <div class="logo">
+                    <img
+                        src="static/img/inje.jpg"
+                        alt="Logo"
+                        style="height: 50px"
+                    />
+                    <p>|&nbsp;</p>
+                    <p style="color: #1769ff">원클릭!&nbsp;</p>
+                    <p>버스예약</p>
+                    <ul class="nav-links">
+                        <li><a href="#">예약하기</a></li>
+                        <li><a href="#">마이페이지</a></li>
+                    </ul>
+                </div>
+                <ul class="login-link">
+                    {% if g.user %}
+                    <li><a href="/logout">로그아웃</a></li>
+                    {% else %}
+                    <li><a href="/login">로그인</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </header>
+        <main>
+            <section class="search-section">
+                <h1>Discover Amazing Places</h1>
+                <form class="search-form">
+                    <input type="text" placeholder="Search destinations" />
+                    <button type="submit">Search</button>
+                </form>
+            </section>
+            <section class="featured-destinations">
+                <h2>Featured Destinations</h2>
+                <div class="destination-grid">
+                    <!-- Example destination cards -->
+                    <div class="destination-card">Destination 1</div>
+                    <div class="destination-card">Destination 2</div>
+                    <div class="destination-card">Destination 3</div>
+                </div>
+            </section>
+        </main>
+        <footer>
+            <p>© 2024 TravelService. All rights reserved.</p>
+        </footer>
+    </body>
+</html>
