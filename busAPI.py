@@ -1,8 +1,9 @@
 import requests, re;
 from bs4 import BeautifulSoup;
 from datetime import date, timedelta;
+from flask import session
 
-session = None;
+cookies = None;
 
 # 현재 날짜 반환
 def getCurDate():
@@ -34,8 +35,9 @@ def getNextDate(cur_date):
 def getLine(date_code):
     url = "https://bus.inje.ac.kr/reserve/day_select_proc.php"
     data = { "dateCode": date_code };
+    cookies = session["cookies"];
 
-    res = session.post(url, data);
+    res = requests.post(url, data, cookies=cookies);
 
     if res.status_code == 200:
         line_dict = {};
@@ -59,8 +61,9 @@ def getTime(line_code, date_code):
         "lineCode": line_code, 
         "dateCode": date_code
     };
+    cookies = session["cookies"];
 
-    res = session.post(url, data);
+    res = requests.post(url, data, cookies=cookies);
 
     if res.status_code == 200:
         time_list = [];
@@ -86,8 +89,9 @@ def getBusCode(line_code, time_code):
         "lineCode": line_code,
         "timeCode": time_code
     };
+    cookies = session["cookies"];
 
-    res = session.get(url, params=params);
+    res = requests.get(url, cookies=cookies, params=params);
     soup = BeautifulSoup(res.text, "html.parser");
     seats = soup.select(".ui-grid-d > div > a");
     for seat in seats:
@@ -107,11 +111,12 @@ def bookBus(bus_code, seatNum):
         "busCode": bus_code,
         "seatNum": seatNum,
         "oriCode": bus_code
-    }
+    };
+    cookies = session["cookies"];
 
     is_done = False;
     while not is_done:
-        res = session.post(url, data)
+        res = requests.post(url, data, cookies=cookies);
         seat_num = int(data["seatNum"]);
         status = res.json()["status"];
         msg = res.json()["message"];
@@ -134,8 +139,9 @@ def bookBus(bus_code, seatNum):
 # 예약된 버스 조회
 def getBookedBus():
     url = "https://bus.inje.ac.kr/index.php";
+    cookies = session["cookies"];
     
-    res = session.get(url);
+    res = requests.get(url, cookies=cookies);
     soup = BeautifulSoup(res.text, "html.parser");
 
     root_selector = "#extends > div > ul > li";
@@ -167,14 +173,15 @@ def getBookedBus():
 def cancelAllBooking():
     bus_list = getBookedBus();
     url = "https://bus.inje.ac.kr/reserve/cancel_proc.php";
-
+    cookies = session["cookies"];
+    
     for el in bus_list:
         data = {
             "seq": el["cancel_code"]
         };
 
         if el["cancel_type"] == "N":
-            res = session.post(url, data);
+            res = requests.post(url, data, cookies=cookies);
             print(res.text);
         else:
             print(res.text, "해당내역은 증차된 차량이며, 예약취소시 패널티가 부여됩니다.\n취소를 원하시면, 본 사이트에서 계속해주세요.")

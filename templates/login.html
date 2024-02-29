@@ -1,0 +1,57 @@
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <script type="text/javascript">
+            alert("{{messages[0]}}")
+        </script>
+    {% endif %}
+{% endwith %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Login Page</title>
+        <link rel="stylesheet" href="static/style.css" />
+    </head>
+    <body>
+        <div class="login-container">
+            <div class="logo-container">
+                <img
+                    src="static/img/inje_logo.png"
+                    alt="Company Logo"
+                    class="logo"
+                />
+            </div>
+            <form action="/login_proc" method="POST" class="login-form">
+                <p
+                    style="
+                        color: blue;
+                        font-size: small;
+                        padding: 10px;
+                        text-align: center;
+                    "
+                >
+                    <a style="color: blue;" target='_blank' href="https://bus.inje.ac.kr">
+                        https://bus.inje.ac.kr
+                    </a> 
+                    사이트와 </br>같은 계정으로 로그인
+                </p>
+                <div class="input-group">
+                    <label for="username">ID (학번/사번)</label>
+                    <input type="text" id="username" name="username" required />
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        required
+                    />
+                </div>
+                <button type="submit" class="login-button">Login</button>
+            </form>
+        </div>
+    </body>
+</html>
