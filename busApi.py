@@ -123,8 +123,42 @@ def bookBus(bus_code, seatNum):
         if status == "success":
             print(str(seat_num), "번 좌석 예약 완료");
             is_done = True;
-        else:
+        
+        elif msg == "이미 선택된 좌석입니다.":
             seat_num += 1;
             if seat_num > 44: seat_num = 1;
             data["seatNum"] = seat_num;
+        else: break;
     return is_done;
+
+# 예약된 버스 조회
+def getBookedBus():
+    url = "https://bus.inje.ac.kr/index.php";
+    
+    res = session.get(url);
+    soup = BeautifulSoup(res.text, "html.parser");
+
+    root_selector = "#extends > div > ul > li";
+    info_selector = root_selector + " > a";
+
+    info_list = soup.select(info_selector);
+
+    bus_list = [];
+    for i in range(0, len(info_list), 2):
+        bus_info = {};
+
+        el_info = info_list[i];
+        el_code = info_list[i + 1];
+
+        p_info_list = el_info.find_all("p");
+        bus_info["info_date"] = el_info.h2.get_text().replace("\xa0", " ");
+        bus_info["info_line"] = p_info_list[0].get_text();
+        bus_info["info_bus"] = p_info_list[1].get_text();
+        bus_info["info_cancel"] = p_info_list[2].get_text();
+
+        cancel_info = re.sub(" +", " ", re.sub(r"[^0-9NY]", " ", el_code["onclick"]).strip(" ")).split(" ");
+        bus_info["cancel_code"] = cancel_info[0];
+        bus_info["cancel_type"] = cancel_info[1];
+
+        bus_list.append(bus_info);
+    return bus_list;
