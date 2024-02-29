@@ -162,3 +162,19 @@ def getBookedBus():
 
         bus_list.append(bus_info);
     return bus_list;
+
+# 예약된 버스 일괄 취소
+def cancelAllBooking():
+    bus_list = getBookedBus();
+    url = "https://bus.inje.ac.kr/reserve/cancel_proc.php";
+
+    for el in bus_list:
+        data = {
+            "seq": el["cancel_code"]
+        };
+
+        if el["cancel_type"] == "N":
+            res = session.post(url, data);
+            print(res.text);
+        else:
+            print(res.text, "해당내역은 증차된 차량이며, 예약취소시 패널티가 부여됩니다.\n취소를 원하시면, 본 사이트에서 계속해주세요.")
