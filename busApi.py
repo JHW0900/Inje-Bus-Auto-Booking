@@ -1,4 +1,5 @@
 import requests, re;
+from bs4 import BeautifulSoup;
 from datetime import date, timedelta;
 
 session = None;
@@ -38,15 +39,17 @@ def getLine(date_code):
 
     if res.status_code == 200:
         line_dict = {};
-        line_str = res.json()["lineList"];
-        parse_str = re.sub(r"[^0-9가-힣]", " ", line_str).replace("노선선택", "").strip(" ");
+        line_str = res.json()["lineList"].replace("양산 - 물금", "양산-물금").replace("양산 - 북정", "양산-북정");
+        line_str = line_str.replace("영도/부산역", "부산역");
+        parse_str = re.sub(r"[^0-9가-힣\-]", " ", line_str).replace("노선선택", "").strip(" ");
         parse_list = re.sub(" +", " ", parse_str).split(" ");
 
+        line_dict["status"] = res.json()["status"];
         for i in range(0, len(parse_list) - 1, 2):
             key = parse_list[i];
             val = parse_list[i + 1];
             line_dict[key] = val;
-        
+
         return line_dict;
 
 # 해당 날짜에 예약 가능한 시간을 조회
@@ -61,8 +64,9 @@ def getTime(line_code, date_code):
 
     if res.status_code == 200:
         time_list = [];
-        time_str = res.json()["list"];
-        parse_str = re.sub(r"[^0-9가-힣]", " ", time_str).replace("노선선택", "").strip(" ");
+        time_str = res.json()["list"].replace("양산 - 물금", "양산-물금").replace("양산 - 북정", "양산-북정");
+        time_str = time_str.replace("영도/부산역", "부산역");
+        parse_str = re.sub(r"[^0-9가-힣\-]", " ", time_str).replace("노선선택", "").strip(" ");
         parse_list = re.sub(" +", " ", parse_str).split(" ");
 
         for i in range(0, len(parse_list) - 5, 6):
@@ -75,13 +79,34 @@ def getTime(line_code, date_code):
         
         return time_list;
 
+# 버스 busCode 조회
+def getBusCode(line_code, time_code):
+    url = "https://bus.inje.ac.kr/reserve/select_seat.php";
+    params = {
+        "lineCode": line_code,
+        "timeCode": time_code
+    };
+
+    res = session.get(url, params=params);
+    soup = BeautifulSoup(res.text, "html.parser");
+    seats = soup.select(".ui-grid-d > div > a");
+    for seat in seats:
+        if seat.get_text() == "X":
+            continue;
+        
+        func = str(seat["onclick"]);
+        bus_code = re.sub(" +", " ", re.sub(r"[^0-9]", " ", func).strip(" ")).split(" ")[0];
+        break;
+    
+    return bus_code;
+
 # 버스 예약
-def bookBus():
+def bookBus(bus_code, seatNum):
     url = "https://bus.inje.ac.kr/reserve/insert_reserve_proc.php";
     data = {
-        "busCode": "110665",
-        "seatNum": "1",
-        "oriCode": "110665"
+        "busCode": bus_code,
+        "seatNum": seatNum,
+        "oriCode": bus_code
     }
 
     is_done = False;
@@ -102,3 +127,4 @@ def bookBus():
             seat_num += 1;
             if seat_num > 44: seat_num = 1;
             data["seatNum"] = seat_num;
+    return is_done;
