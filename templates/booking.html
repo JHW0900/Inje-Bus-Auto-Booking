@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>원클릭! 인제 버스예약</title>
+
+        <link
+            rel="shortcut icon"
+            href="{{ url_for('static', filename='favicon.ico') }}"
+        />
+        <link rel="stylesheet" href="static/main.css" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+            crossorigin="anonymous"
+        />
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"
+        ></script>
+
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+            integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+    </head>
+    <body>
+        {% include 'common/header.html' %}
+        <main>
+            <script>
+                time_list = {
+                    3: {
+                        begin: ["07:50", "09:00", "09:50"],
+                        end: ["17:20", "18:20", "21:00"],
+                    },
+                    4: {
+                        begin: ["07:50", "09:00", "09:50"],
+                        end: ["17:20", "18:20", "21:00"],
+                    },
+                    7: {
+                        begin: ["07:20"],
+                        end: ["18:10"],
+                    },
+                    5: {
+                        begin: ["07:20"],
+                        end: ["18:10"],
+                    },
+                    11: {
+                        begin: ["07:50"],
+                        end: ["18:10"],
+                    },
+                    18: {
+                        begin: ["07:40"],
+                        end: ["18:10"],
+                    },
+                    2: {
+                        begin: ["08:00", "10:00"],
+                        end: ["16:20", "17:20", "18:20"],
+                    },
+                    8: {
+                        begin: ["08:00", "09:00", "10:00"],
+                        end: ["16:20", "17:20", "18:20"],
+                    },
+                    21: {
+                        begin: [],
+                        end: ["21:00"],
+                    },
+                    9: {
+                        begin: ["07:30"],
+                        end: ["18:10"],
+                    },
+                    10: {
+                        begin: ["07:55"],
+                        end: ["18:10"],
+                    },
+                    12: {
+                        begin: ["07:30", "08:30", "09:40"],
+                        end: ["16:10", "17:30", "20:00"],
+                    },
+                };
+
+                const fnSelectLine = (e) => {
+                    debugger;
+                    const line_code = e.value;
+                    const time_obj = time_list[line_code];
+                    const days = ["mon", "tue", "wed", "thu", "fri"];
+
+                    for (let day of days) {
+                        const begin_id = "begin_line_" + day;
+                        const end_id = "end_line_" + day;
+
+                        const begin_el = document.querySelector(`#${begin_id}`);
+                        const end_el = document.querySelector(`#${end_id}`);
+
+                        let begin_opt =
+                            "<option value='free'>등교시간 선택</option>";
+                        let end_opt =
+                            "<option value='free'>하교시간 선택</option>";
+                        const empty_opt = "<option value='free'>없음</option>";
+                        for (let time of time_obj["begin"]) {
+                            begin_opt += `<option value="${time}">${time}</option>`;
+                        }
+                        for (let time of time_obj["end"]) {
+                            end_opt += `<option value="${time}">${time}</option>`;
+                        }
+
+                        begin_opt += empty_opt;
+                        end_opt += empty_opt;
+
+                        begin_el.innerHTML = begin_opt;
+                        end_el.innerHTML = end_opt;
+                    }
+                };
+            </script>
+            <form action="{{url_for('bookInjeBus')}}" method="POST">
+                <section class="search-section">
+                    <h1>버스 시간 선택</h1>
+
+                    <div class="index_bg" id="content_box">
+                        <select
+                            class="form-select"
+                            style="width: 88%"
+                            name="line_select"
+                            id="line_select"
+                            onchange="fnSelectLine(this)"
+                        >
+                            <option value="" selected>노선선택</option>
+                            <option value="3">동래</option>
+                            <option value="2">마산</option>
+                            <option value="18">양산 - 물금</option>
+                            <option value="11">양산 - 북정</option>
+                            <option value="7">영도/부산역</option>
+                            <option value="12">울산</option>
+                            <option value="10">장유</option>
+                            <option value="9">진해</option>
+                            <option value="8">창원</option>
+                            <option value="21">창원-마산</option>
+                            <option value="4">하단</option>
+                            <option value="5">해운대</option>
+                        </select>
+                    </div>
+                    <div class="index_bg" id="content_box">
+                        <div class="card_box">
+                            <div class="title" id="pre_business_name0">
+                                월요일
+                            </div>
+                            <div class="time_box">
+                                <select
+                                    id="begin_line_mon"
+                                    name="begin_line_mon"
+                                    class="form-select"
+                                    style="
+                                        width: 48%;
+                                        display: inline;
+                                        margin-top: 10px;
+                                    "
+                                >
+                                    <option value="-1">등교시간 선택</option>
+                                </select>
+                                <select
+                                    id="end_line_mon"
+                                    name="end_line_mon"
+                                    class="form-select"
+                                    style="
+                                        width: 48%;
+                                        display: inline;
+                                        margin-top: 10px;
+                                    "
+                                >
+                                    <option value="-1">하교시간 선택</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card_box">
+                            <div class="title" id="pre_business_name0">
+                                화요일
+                            </div>
+                            <div class="time_box">
+                                <select
+                                    id="begin_line_tue"
+                                    name="begin_line_tue"
+                                    class="form-select"
+                                    style="
+                                        width: 48%;
+                                        display: inline;
+                                        margin-top: 10px;
+                                    "
+                                >
+                                    <option value="-1">등교시간 선택</option>
+                                </select>
+                                <select
+                                    id="end_line_tue"
+                                    name="end_line_tue"
+                                    class="form-select"
+                                    style="
+                                        width: 48%;
+                                        display: inline;
+                                        margin-top: 10px;
+                                    "
+                                >
+                                    <option value="-1">하교시간 선택</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card_box">
+                            <div class="title" id="pre_business_name0">
+                                수요일
+                            </div>
+                            <div class="time_box">
+                                <select
+                                    id="begin_line_wed"
+                                    name="begin_line_wed"
+                                    class="form-select"
+                                    style="
+                                        width: 48%;
+                                        display: inline;
+                                        margin-top: 10px;
+                                    "
+                                >
+                                    <option value="-1">등교시간 선택</option>
+                                </select>
+                                <select
+                                    id="end_line_wed"
+                                    name="end_line_wed"
+                                    class="form-select"
+                                    style="
+                                        width: 48%;
+                                        display: inline;
+                                        margin-top: 10px;
+                                    "
+                                >
+                                    <option value="-1">하교시간 선택</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card_box">
+                            <div class="title" id="pre_business_name0">
+                                목요일
+                            </div>
+                            <div class="time_box">
+                                <select
+                                    id="begin_line_thu"
+                                    name="begin_line_thu"
+                                    class="form-select"
+                                    style="
+                                        width: 48%;
+                                        display: inline;
+                                        margin-top: 10px;
+                                    "
+                                >
+                                    <option value="-1">등교시간 선택</option>
+                                </select>
+                                <select
+                                    id="end_line_thu"
+                                    name="end_line_thu"
+                                    class="form-select"
+                                    style="
+                                        width: 48%;
+                                        display: inline;
+                                        margin-top: 10px;
+                                    "
+                                >
+                                    <option value="free">하교시간 선택</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card_box">
+                            <div class="title" id="pre_business_name0">
+                                금요일
+                            </div>
+                            <div class="time_box">
+                                <select
+                                    id="begin_line_fri"
+                                    name="begin_line_fri"
+                                    class="form-select"
+                                    style="
+                                        width: 48%;
+                                        display: inline;
+                                        margin-top: 10px;
+                                    "
+                                >
+                                    <option value="-1">등교시간 선택</option>
+                                </select>
+                                <select
+                                    id="end_line_fri"
+                                    name="end_line_fri"
+                                    class="form-select"
+                                    style="
+                                        width: 48%;
+                                        display: inline;
+                                        margin-top: 10px;
+                                    "
+                                >
+                                    <option value="-1">하교시간 선택</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button
+                            type="submit"
+                            class="btn btn-primary book_btn"
+                            onclick=""
+                        >
+                            예약하기
+                        </button>
+                    </div>
+                </section>
+            </form>
+        </main>
+        {% include 'common/footer.html' %}
+    </body>
+</html>

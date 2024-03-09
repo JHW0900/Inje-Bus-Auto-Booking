@@ -41,6 +41,7 @@ def getLine(date_code):
 
     if res.status_code == 200:
         line_dict = {};
+
         line_str = res.json()["lineList"].replace("양산 - 물금", "양산-물금").replace("양산 - 북정", "양산-북정");
         line_str = line_str.replace("영도/부산역", "부산역");
         parse_str = re.sub(r"[^0-9가-힣\-]", " ", line_str).replace("노선선택", "").strip(" ");

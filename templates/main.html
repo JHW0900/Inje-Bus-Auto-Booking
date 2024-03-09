@@ -1,3 +1,9 @@
+{% with messages = get_flashed_messages() %} {% if messages %}
+<script type="text/javascript">
+    alert("{{messages[0]}}");
+</script>
+{% endif %} {% endwith %}
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -9,35 +15,29 @@
             href="{{ url_for('static', filename='favicon.ico') }}"
         />
         <link rel="stylesheet" href="static/main.css" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+            crossorigin="anonymous"
+        />
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"
+        ></script>
+
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+            integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
     </head>
     <body>
-        <header>
-            <nav>
-                <a href="{{url_for('main')}}" style="text-decoration: none">
-                    <div class="logo">
-                        <img
-                            src="static/img/inje.jpg"
-                            alt="Logo"
-                            style="height: 50px"
-                        />
-                        <p>|&nbsp;</p>
-                        <p style="color: #1769ff">원클릭!&nbsp;</p>
-                        <p>버스예약</p>
-                    </div>
-                </a>
-                <ul class="nav-links">
-                    <li><a href="#">예약하기</a></li>
-                    <li><a href="#">마이페이지</a></li>
-                </ul>
-                <ul class="login-link">
-                    {% if g.user %}
-                    <li><a href="/logout">로그아웃</a></li>
-                    {% else %}
-                    <li><a href="/login">로그인</a></li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </header>
+        {% include 'common/header.html' %}
         <main>
             <section class="search-section">
                 <h1>Discover Amazing Places</h1>
@@ -56,8 +56,6 @@
                 </div>
             </section>
         </main>
-        <footer>
-            <p>© 2024 TravelService. All rights reserved.</p>
-        </footer>
+        {% include 'common/footer.html' %}
     </body>
 </html>

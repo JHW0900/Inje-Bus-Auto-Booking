@@ -1,4 +1,3 @@
-import getpass;
 import requests;
 import busAPI;
 from flask import flash;
