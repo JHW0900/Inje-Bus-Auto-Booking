@@ -29,8 +29,9 @@ tmp_end_data = {
     "Sat": "free",
 }
 
-def getBookInfo():
+def getBookInfo(obj):
     date_set = getCurDate();
+    setTimeData(obj);
 
     while True:
         cur_date = date_set["curDate"];
@@ -69,3 +70,11 @@ def getBookInfo():
         print("=======================");
                 
         date_set = getNextDate(cur_date);
+
+def setTimeData(obj):
+    line_code = obj["line_code"];
+    days = ("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
+
+    for day in days:
+        tmp_begin_data[day] = obj["begin_line_" + day.lower()];
+        tmp_end_data[day] = obj["end_line_" + day.lower()];
