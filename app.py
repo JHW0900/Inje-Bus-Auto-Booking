@@ -73,6 +73,15 @@ def bookInjeBus():
     else:
         return redirect(url_for("login_page"));
 
+@app.route("/mypage")
+def mypage():
+    msg = "아직 준비 중입니다.";
+    print(msg, "\n");
+    flash(msg);
+    if g.user:
+        return redirect(url_for("main"));
+    else:
+        redirect(url_for("login_page"));
 
 @app.before_request
 def load_logged_in_user():
