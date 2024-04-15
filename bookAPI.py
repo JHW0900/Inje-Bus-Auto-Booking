@@ -5,7 +5,7 @@ from datetime import datetime;
 line_code = "8";
 
 # 원하는 좌석
-seat_num = 1;
+seat_num = 5;
 
 # 제일 빠른 수업 시간
 tmp_begin_data = {
